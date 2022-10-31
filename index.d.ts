@@ -167,7 +167,7 @@ export type FillPatterns =
 export interface FillPattern {
 	type: 'pattern';
 	pattern: FillPatterns;
-	fgColor: Partial<Color>;
+	fgColor?: Partial<Color>;
 	bgColor?: Partial<Color>;
 }
 
@@ -432,8 +432,8 @@ export interface Cell extends Style, Address {
 	readonly fullAddress: {
 		sheetName: string;
 		address: string;
-		row: string;
-		col: string;
+		row: number;
+		col: number;
 	};
 	model: CellModel;
 	/**
@@ -602,17 +602,17 @@ export interface Column {
 	/**
 	 * Can be a string to set one row high header or an array to set multi-row high header
 	 */
-	header: string | string[];
+	header?: string | string[];
 
 	/**
 	 * The name of the properties associated with this column in each row
 	 */
-	key: string;
+	key?: string;
 
 	/**
 	 * The width of the column
 	 */
-	width: number;
+	width?: number;
 
 	/**
 	 * Set an outline level for columns
@@ -644,12 +644,16 @@ export interface Column {
 	readonly headers: string[];
 	readonly isDefault: boolean;
 	readonly headerCount: number;
-	border: Partial<Borders>;
-	fill: Fill;
-	numFmt: string
-	font: Partial<Font>;
-	alignment: Partial<Alignment>;
-	protection: Partial<Protection>;
+
+	/**
+	 * Below properties read from style
+	 */
+	border?: Partial<Borders>;
+	fill?: Fill;
+	numFmt?: string;
+	font?: Partial<Font>;
+	alignment?: Partial<Alignment>;
+	protection?: Partial<Protection>;
 
 	toString(): string
 	equivalentTo(other: Column): boolean
@@ -1133,22 +1137,27 @@ export interface Worksheet {
 	readonly columnCount: number;
 
 	/**
+	 * Get the last column in a worksheet
+	 */
+	readonly lastColumn: Column;
+
+	/**
 	 * A count of the number of columns that have values.
 	 */
 	readonly actualColumnCount: number;
 
-	getColumnKey(key: string): Partial<Column>;
+	getColumnKey(key: string): Column;
 
-	setColumnKey(key: string, value: Partial<Column>): void;
+	setColumnKey(key: string, value: Column): void;
 
 	deleteColumnKey(key: string): void;
 
-	eachColumnKey(callback: (col: Partial<Column>, index: number) => void): void;
+	eachColumnKey(callback: (col: Column, index: number) => void): void;
 
 	/**
 	 * Access an individual columns by key, letter and 1-based column number
 	 */
-	getColumn(indexOrKey: number | string): Partial<Column>;
+	getColumn(indexOrKey: number | string): Column;
 
 	/**
 	 * Cut one or more columns (columns to the right are shifted left)
@@ -1240,7 +1249,7 @@ export interface Worksheet {
 	/**
 	 * Get or create rows by 1-based index
 	 */
-	getRows(start: number, length: number): Row[];
+	getRows(start: number, length: number): Row[] | undefined;
 
 	/**
 	 * Iterate over all rows that have values in a worksheet
@@ -1626,7 +1635,7 @@ export interface CellMatrix {
 
 export interface DefinedNamesRanges {
 	name: string;
-	range: string[];
+	ranges: string[];
 }
 
 export type DefinedNamesModel = DefinedNamesRanges[];
@@ -1678,12 +1687,19 @@ export interface WorkbookModel {
 }
 
 export class Workbook {
+    category: string;
+    company: string;
 	creator: string;
+    description: string;
+    keywords: string;
 	lastModifiedBy: string;
 	created: Date;
+    manager: string;
 	modified: Date;
 	lastPrinted: Date;
 	properties: WorkbookProperties;
+	subject: string;
+    title: string;
 
 	/**
 	 * Workbook calculation Properties
@@ -1853,7 +1869,7 @@ export interface Table extends Required<TableProperties> {
 	/**
 	 * Add a row of data, either insert at rowNumber or append
 	 */
-	addRow: (values: any[], rowNumber: number) => void
+	addRow: (values: any[], rowNumber?: number) => void
 	/**
 	 * Get column
 	 */
